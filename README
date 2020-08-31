@@ -1,0 +1,19 @@
+Project : Re-Identification in Genomic Databases using Public Face Images
+Authors : Rajagopal Venkatesaramani, Bradley A. Malin, Yevgeniy Vorobeychik
+
+This project is implemented in Python 3.7.4. Please refer to requirements.txt for pip packages.
+Additionally, the project expects an installation of pytorch, with CUDA enabled for GPU-processing.
+The easiest way to install pytorch is to use Conda.
+
+
+The code is divided into several modular units. Some files may be used in more than one scenario. Usually, this only involves changing the names of input files and models in the corresponding python file. Necessary changes are listed below.
+
+We provide a 'checklist' style approach to make tracking these necessary changes easier. This will also help in reverting ALL changes, when necessary.
+
+
+1. Training Phenotype Classifiers
+
+	modeltraining.py contains the code necessary to train VGGFace classifiers that predict sex, hair color, eye color and skin color, given images. 
+
+	First, download the publicly available CelebA dataset from https://drive.google.com/file/d/0B7EVK8r0v71pZjFTYXZWM3FlRnM/view?usp=sharing
+
