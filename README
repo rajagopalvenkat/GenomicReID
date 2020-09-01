@@ -3,6 +3,10 @@ Re-Identification in Genomic Databases using Public Face Images
 Authors : Rajagopal Venkatesaramani, Bradley A. Malin, Yevgeniy Vorobeychik
 ##############################################################################################
 
+
+Please cite our paper if you find our work useful in your own, and if you use this code/data.
+
+
 This project is implemented in Python 3.7.4. Please refer to requirements.txt for required pip packages.
 Additionally, the project depends on an installation of pytorch, with CUDA enabled for GPU-processing.
 The easiest way to install pytorch is to use Conda.
@@ -187,3 +191,11 @@ The following methods - skin_dataloaders, sex_dataloaders, eyecolor_dataloaders,
 
 In the process of compiling code for this repository, several files were modified for execution simplicity. While I hope that execution will be painless with these instructions, owing to the large number of variables in each file that often depend on the output of another, there may be untraced leftover code somewhere that affects the pipeline. Please get in touch with me via email: rajagopal@wustl.edu should this happen, and I will be glad to assist you in using this codebase.
 
+
+---------------------------------------------------
+Rajagopal Venkatesramani (Raj)
+Ph.D. Student
+Department of Computer Science
+Washington University in St. Louis
+EMAIL : rajagopal@wustl.edu
+1st September 2020
