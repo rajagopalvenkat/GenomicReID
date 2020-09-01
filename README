@@ -1,15 +1,45 @@
-Project : Re-Identification in Genomic Databases using Public Face Images
+##############################################################################################
+Re-Identification in Genomic Databases using Public Face Images
 Authors : Rajagopal Venkatesaramani, Bradley A. Malin, Yevgeniy Vorobeychik
+##############################################################################################
 
-This project is implemented in Python 3.7.4. Please refer to requirements.txt for pip packages.
-Additionally, the project expects an installation of pytorch, with CUDA enabled for GPU-processing.
+This project is implemented in Python 3.7.4. Please refer to requirements.txt for required pip packages.
+Additionally, the project depends on an installation of pytorch, with CUDA enabled for GPU-processing.
 The easiest way to install pytorch is to use Conda.
+
+
+
+
+DATA FILES AND CONTENTS
+
+	> synthetic_images : 456 images from the CelebA dataset, with annotated sex, haircolor, eyecolor and skincolor, as well as synthetic genomes constructed probabilistically using the OpenSNP dataset.
+
+	> synthetic_ground_truth.csv : Phenotype labels for the 456 individuals in the synthetic dataset.
+
+	> synthetic_predicited_phenotypes.csv : phenotype predictions on the 456 individuals using our trained models. Used for matching. Use this file as a template when evaluating with your own dataset.
+
+	> synthetic_ideal_SNPs.csv : Artificially generated genomes in the 'ideal' setting - most expressive genome - for the synthetic dataset.
+
+	> synthetic_real_SNPs.csv : Artificially generated genomes in the 'realistic' setting - randomly chosen from population with same phenotypes - for the synthetic dataset.
+
+	> synthetic_real_P_genomes : probabilities of each phenotype given the individual's genome in the synthetic-realistic dataset.
+
+	> synthetic_ideal_P_genomes : probabilities of each phenotype given the individual's genome in the synthetic-ideal dataset.
+
+	> skin_color_labels : Manually annotated skin color labels for 985 images from the CelebA dataset.
+
+	> eye_color_labels : Manually annotated eye color labels for 853 images from the CelebA dataset.
+
+
+
 
 The code is divided into several modular units. Some files may be used in more than one scenario. Usually, this only involves changing the names of input files and models in the corresponding python file. Necessary changes are listed below.
 
-Before we dive any further, let us familiarize ourselves with the two methods of loading data in pytorch (for training, testing, outputs etc). The first is batch-loading of images using pytorch DataLoaders, which is highly efficient for parallel GPU processing. The second is to load images individually (this is necessary in the universal noise case, for instance) - where an extra dimension is added for compatibility with the models' input shape requirements.
+Before we dive any further, let us familiarize ourselves with the two methods of loading data in pytorch (for training, testing, outputs etc). The first is batch-loading of images using pytorch DataLoaders, which is highly efficient for parallel GPU processing. The second is to load images individually (this is necessary in the universal noise case, for instance) - where an extra dimension is added to each image for compatibility with the models' input shape requirements.
 
-skin_dataloaders, sex_dataloaders, eyecolor_dataloaders, hcolor_dataloaders - these methods load images in batches from the corresponding directories, which are to be prepared as described below.
+The following methods - skin_dataloaders, sex_dataloaders, eyecolor_dataloaders, hcolor_dataloaders - are used in various python files. These methods load images in batches from the corresponding directories, which are to be prepared as described below. Using this method automatically populates label arrays, and makes batches for parallel processing. An optional 'shuffle' argument is used to load data in either sorted order from the directory (shuffle=False), which is useful when retrieving results, or in random order (shuffle=True) when training to avoid the effects of input data sequence on model fitting.
+
+
 
 1. Training Phenotype Classifiers
 
@@ -67,7 +97,7 @@ skin_dataloaders, sex_dataloaders, eyecolor_dataloaders, hcolor_dataloaders - th
 				F/
 				M/
 
-	Labels for skin-color and eye-color put together in the study are provided. For eye color, use the following variants - [BLUE, INT, BROWN], for hair color use [BLACK, BLONDE, BROWNH] and for skin color use [PALE, INTSKIN, DARKSKIN] - note the capitalization of variants for folder naming.
+	Labels for skin-color and eye-color from images labeled during the study are provided (files skin_color_labels and eye_color_labels respectively). For eye color, use the following variant names exactly to create directories - [BLUE, INT, BROWN], for hair color use [BLACK, BLONDE, BROWNH] and for skin color use [PALE, INTSKIN, DARKSKIN] - note the capitalization of variants for folder naming, and the extra H to denote hair for brown hair.
 
 	Having placed the images in the appropriate folders, run modeltraining.py using the command:
 
@@ -76,12 +106,84 @@ skin_dataloaders, sex_dataloaders, eyecolor_dataloaders, hcolor_dataloaders - th
 	Please note that training will take several hours. Trained model states are saved in the project directory.
 
 
+
 2. Evaluating Models
 
 	
 	The get_outputs.py is used to both evaluate and get softmax outputs from the neural networks, on both data loaded in batches, as well as individual images. Uncomment the corresponding section to use either method.
 
-	When using dataloaders to get model outputs, please note that images are read in sorted order through their variant folders (ensure shuffle=False in the dataloader definitions). For example, when using dataloaders to load test images for hair color, to get the order of images, first sort the variants, i.e. [BLACK, BLONDE, BROWNH], then sort images within each variant directory. So the order is - sorted images with Black hair, then sorted images with Blonde hair, then sorted images with Brown hair.
+	When using dataloaders to get model outputs, please note that images are read in sorted order through their variant folders (ensure shuffle=False in the dataloader definitions). For example, when using dataloaders to load test images for hair color, to get the order of images, first sort the variants, i.e. [BLACK, BLONDE, BROWNH], then sort images within each variant directory. So the order is - sorted test images with Black hair, then sorted test images with Blonde hair, then sorted test images with Brown hair.
+
+	It is usually easier to load individual images instead, and print filenames alongside at the cost of execution time.
+
+	Simply replace the names of the dataloader used, the model and the directory as needed in this file. Ensure that the correct model path has also been used.
 
 
-3. 
+
+3. Matching Images to DNA
+
+	
+	The file quickmatch.py implements the matching likelihood function. Its execution depends on two files - one with the probabilities of each considered phenotype variant given genomes, and the other with predicted phenotypes from images. Filenames are to be modified inside this script.
+
+	Currently, the file synthetic_predicted_phenotypes.csv contains the probabilities of phenotypes given images (softmax outputs of models). Note that the ID column is the image filename, where the 'jpg' extension and leading zeroes are removed from the original filename. For custom datasets, please arrange model outputs in a similar csv file.
+
+	The files synthetic_real_P_genomes and synthetic_ideal_P_genomes contain phenotype probabilities given the corresponding genome. For custom datasets, please arrange calculated phenotype probabilities given genomes in a similar csv file.
+
+	To execute the entire matching pipeline with default options, simply run 
+
+		python3 execute_matching.py
+
+	Execution will take a few minutes, and finally, a file named 'results' will be created with three arrays. Ignore intermediate temporary files created, these will be deleted automatically.
+
+	The first array in the results file shows the number of top-1 matches averaged over a sliding window of increasing population size (in steps of 10). So the array presents number of matches averaged over 10, 20, ..., 456 individuals for the synthetic data.
+
+	Similarly, the second and third array in the results file present top-3 and top-5 matching performance.
+
+	If you wish to run matching on a custom dataset, please remember to adjust intervals and dataset size inside execute_matching.py, as well as filenames inside quickmatch.py.
+
+
+
+4. Generating Adversarial Examples
+
+
+	Generating adversarial examples for the two attacks presented in our paper are done differently owing to their nature.
+
+	In the PGD attack, we only attack one model at a time. Therefore our implementation uses pytorch dataloaders for efficiency. To run this attack, uncomment the PGD attack section, then run 
+
+		python3 generate_adversarial_examples.py    <value of alpha (integer between 1-255) >    <epsilon (real, 0-1)>
+
+	Adversarial examples will be saved in the PGD_advX directory. We use a value of alpha=2 throughout our paper.
+
+
+	In the universal noise attack, the perturbation depends on both the image as well as the genome, therefore we attack all phenotype classifiers at once. Here, we load one image at a time for simplicity of implementation. Uncomment line 300 to add a dummy dimension to loaded images. For each image in the folder 'synthetic_images', an adversarial image is generated and saved to multiple locations for ease of training later (paths can be found in the code).
+
+	In this attack, we can also initialize the attack to a random perturbation around the original image. Uncomment line 298 in generate_adversarial_examples.py to implement this.
+
+	Uncomment the Universal Attack section, and run
+
+		python3 generate_adversarial_examples.py    <value of alpha (integer between 1-255) >    <epsilon (real, 0-1)>
+
+
+
+5. Adversarial Training
+
+
+	To run adversarial training with PGD, use the PGD_training.py as:
+
+		python3 PGD_training.py     <value of alpha (integer between 1-255) >    <epsilon (real, 0-1)>
+
+	This is currently set up to attack the sex classifier. Replace the model name, dataloader, optimizer and output file name for each phenotype.
+
+
+
+	To run adversarial training with Universal Noise, uncomment the Universal Noise section in generate_adversarial_examples.py, make sure line 300 is NOT commented (random noise in epsilon ball), make sure line 298 IS commented (dummy dimension, not required), and that the PGD section IS commented out.
+
+	Then simply run 
+
+		python3 universal_training_script.py 
+
+	This will take a few hours, and a trained model for each value of epsilon will be found in the directory retrained_univ_models.
+
+
+In the process of compiling code for this repository, several files were modified for execution simplicity. While I hope that execution will be painless with these instructions, owing to the large number of variables in each file that often depend on the output of another, there may be untraced leftover code somewhere that affects the pipeline. Please get in touch with me via email: rajagopal@wustl.edu should this happen, and I will be glad to assist you in using this codebase.
+

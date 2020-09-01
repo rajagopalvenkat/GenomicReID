@@ -234,7 +234,7 @@ def imshow(img, title):
 	fig = plt.figure(figsize = (5, 15))
 	plt.imsave(title, np.transpose(npimg,(1,2,0)))
 
-def PGD_attack(model, ret_images, labels, alpha, epsilon, iters):
+def PGD_attack(model, ret_images, labels, alpha, epsilon, iters=20):
 	ori_images=ret_images.data
 	for i in range(iters):
 		
@@ -304,16 +304,16 @@ def imLoad(image_name):
 #####################################################################################
 #									PGD ATTACK 										#
 #####################################################################################
-os.system('mkdir PGD_advX')
-count = 1
+# os.system('mkdir PGD_advX')
+# count = 1
 
-for i, data in tqdm(enumerate(sex_dataloaders[TEST])):
-	images, labels = data
-	images, labels = Variable(images.cuda()), Variable(labels.cuda())
-	adv_images=PGD_attack(sex_model, images, labels)
-	print(F.softmax(sex_model(adv_images)))
-	imshow(torchvision.utils.make_grid(adv_images.cpu().data, normalize=True), "PGD_advX/"+sys.argv[1]+"_"+str(count)+ ".png")
-	count+=1
+# for i, data in tqdm(enumerate(sex_dataloaders[TEST])):
+# 	images, labels = data
+# 	images, labels = Variable(images.cuda()), Variable(labels.cuda())
+# 	adv_images=PGD_attack(sex_model, images, labels, alpha=int(sys.argv[2], epsilon=float(sys.argv[1])))
+# 	print(F.softmax(sex_model(adv_images)))
+# 	imshow(torchvision.utils.make_grid(adv_images.cpu().data, normalize=True), "PGD_advX/"+sys.argv[1]+"_"+str(count)+ ".png")
+# 	count+=1
 
 
 #####################################################################################
