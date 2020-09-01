@@ -5,11 +5,11 @@ This project is implemented in Python 3.7.4. Please refer to requirements.txt fo
 Additionally, the project expects an installation of pytorch, with CUDA enabled for GPU-processing.
 The easiest way to install pytorch is to use Conda.
 
-
 The code is divided into several modular units. Some files may be used in more than one scenario. Usually, this only involves changing the names of input files and models in the corresponding python file. Necessary changes are listed below.
 
-We provide a 'checklist' style approach to make tracking these necessary changes easier. This will also help in reverting ALL changes, when necessary.
+Before we dive any further, let us familiarize ourselves with the two methods of loading data in pytorch (for training, testing, outputs etc). The first is batch-loading of images using pytorch DataLoaders, which is highly efficient for parallel GPU processing. The second is to load images individually (this is necessary in the universal noise case, for instance) - where an extra dimension is added for compatibility with the models' input shape requirements.
 
+skin_dataloaders, sex_dataloaders, eyecolor_dataloaders, hcolor_dataloaders - these methods load images in batches from the corresponding directories, which are to be prepared as described below.
 
 1. Training Phenotype Classifiers
 
@@ -17,3 +17,71 @@ We provide a 'checklist' style approach to make tracking these necessary changes
 
 	First, download the publicly available CelebA dataset from https://drive.google.com/file/d/0B7EVK8r0v71pZjFTYXZWM3FlRnM/view?usp=sharing
 
+	For each phenotype, set up the following directory structure:
+
+		phenotype/
+
+			train/
+
+				variant_1/
+				variant_2/
+				.
+				.
+				.
+				variant_n/
+
+			val/
+
+				variant_1/
+				variant_2/
+				.
+				.
+				.
+				variant_n/
+			
+			test/
+
+				variant_1/
+				variant_2/
+				.
+				.
+				.
+				variant_n/
+
+	As an example, for sex classification, create the following directory structure, and place images into the appropriate folder:
+
+		sex/
+
+			train/
+
+				F/
+				M/
+
+			val/
+
+				F/
+				M/
+
+			test/
+
+				F/
+				M/
+
+	Labels for skin-color and eye-color put together in the study are provided. For eye color, use the following variants - [BLUE, INT, BROWN], for hair color use [BLACK, BLONDE, BROWNH] and for skin color use [PALE, INTSKIN, DARKSKIN] - note the capitalization of variants for folder naming.
+
+	Having placed the images in the appropriate folders, run modeltraining.py using the command:
+
+		python3 modeltraining.py
+
+	Please note that training will take several hours. Trained model states are saved in the project directory.
+
+
+2. Evaluating Models
+
+	
+	The get_outputs.py is used to both evaluate and get softmax outputs from the neural networks, on both data loaded in batches, as well as individual images. Uncomment the corresponding section to use either method.
+
+	When using dataloaders to get model outputs, please note that images are read in sorted order through their variant folders (ensure shuffle=False in the dataloader definitions). For example, when using dataloaders to load test images for hair color, to get the order of images, first sort the variants, i.e. [BLACK, BLONDE, BROWNH], then sort images within each variant directory. So the order is - sorted images with Black hair, then sorted images with Blonde hair, then sorted images with Brown hair.
+
+
+3. 

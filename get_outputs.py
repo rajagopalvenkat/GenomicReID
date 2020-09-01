@@ -237,21 +237,30 @@ def imLoad(image_name):
 	image = image.unsqueeze(0)
 	return image.cuda()
 
+#########################
+#  SINGLE IMAGE LOADING	#
+#########################
+
 # for file in os.listdir('custom_directory/'):
 # 	x=imLoad('custom_directory/'+file)
 # 	print(file,F.softmax(sex_model(x)))
 
-correct = 0
-total = 0
-with torch.no_grad():
-	for i, data in enumerate(sex_dataloaders[TEST]):
-		images, labels = data
-		if use_gpu:
-			images, labels = Variable(images.cuda()), Variable(labels.cuda())
-		outputs = sex_model(images)
-		_, predicted = torch.max(outputs.data, 1)
-		print(predicted)
-		total += labels.size(0)
-		correct += (predicted == labels).sum().item()
+#########################
+# 		BATCH LOADING	#
+#########################
 
-print('Accuracy of the network on the test images: %d %%' % (100 * correct / total))
+# correct = 0
+# total = 0
+# with torch.no_grad():
+# 	for i, data in enumerate(sex_dataloaders[TEST]):
+# 		images, labels = data
+# 		if use_gpu:
+# 			images, labels = Variable(images.cuda()), Variable(labels.cuda())
+# 		outputs = sex_model(images)
+# 		_, predicted = torch.max(outputs.data, 1)
+# 		#print(predicted)
+# 		print(F.softmax(sex_model(images)))
+# 		total += labels.size(0)
+# 		correct += (predicted == labels).sum().item()
+
+# print('Accuracy of the network on the test images: %d %%' % (100 * correct / total))
