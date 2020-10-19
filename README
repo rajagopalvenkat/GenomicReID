@@ -51,6 +51,8 @@ The following methods - skin_dataloaders, sex_dataloaders, eyecolor_dataloaders,
 
 	First, download the publicly available CelebA dataset from https://drive.google.com/file/d/0B7EVK8r0v71pZjFTYXZWM3FlRnM/view?usp=sharing
 
+	Also, download pretrained VGGFace weights from http://www.robots.ox.ac.uk/~vgg/software/vgg_face/src/vgg_face_torch.tar.gz ([1] O. M. Parkhi, A. Vedaldi, A. Zisserman, Deep Face Recognition, British Machine Vision Conference, 2015). Ensure that you place the VGG_FACE.t7 file in the root directory of this project.
+
 	For each phenotype, set up the following directory structure:
 
 		phenotype/
