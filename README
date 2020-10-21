@@ -8,7 +8,12 @@ This project is implemented in Python 3.7.4. Please refer to requirements.txt fo
 Additionally, the project depends on an installation of pytorch, with CUDA enabled for GPU-processing.
 The easiest way to install pytorch is to use Conda.
 
+Study was run on a machine with the following specifications:
 
+Ubuntu 18.04 LTS
+AMD Ryzen 7 3800X
+Nvidia GeForce RTX 2070 Super (EVGA FTW3 Ultra)
+32 GB Memory @ 3600 MHz
 
 
 DATA FILES AND CONTENTS
